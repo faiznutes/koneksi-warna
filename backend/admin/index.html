@@ -66,7 +66,7 @@ td img { width:60px; height:40px; object-fit:cover; border-radius:6px; }
 <div class="main" id="main"><div class="loading">Memuat...</div></div>
 <div id="toast" class="toast"></div>
 <script>
-const API = "http://localhost:3001";
+const API = "";
 
 function $(id) { return document.getElementById(id); }
 function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); }, 3000); }
@@ -97,10 +97,10 @@ function loadPage(name, main) {
 // ==== DASHBOARD ====
 function loadDash(main) {
   Promise.all([
-    fetch(API+"/api/works").then(function(r){return r.json();}),
-    fetch(API+"/api/services").then(function(r){return r.json();}),
-    fetch(API+"/api/packages").then(function(r){return r.json();}),
-    fetch(API+"/api/testimonials").then(function(r){return r.json();})
+    fetch("/api/works").then(function(r){return r.json();}),
+    fetch("/api/services").then(function(r){return r.json();}),
+    fetch("/api/packages").then(function(r){return r.json();}),
+    fetch("/api/testimonials").then(function(r){return r.json();})
   ]).then(function(d){
     var w = d[0].data, s = d[1].data, p = d[2].data, t = d[3].data;
     main.innerHTML =
@@ -123,8 +123,8 @@ function loadDash(main) {
 // ==== WORKS ====
 function loadWorks(main) {
   Promise.all([
-    fetch(API+"/api/works").then(function(r){return r.json();}),
-    fetch(API+"/api/categories").then(function(r){return r.json();})
+    fetch("/api/works").then(function(r){return r.json();}),
+    fetch("/api/categories").then(function(r){return r.json();})
   ]).then(function(d){
     var works = d[0].data, cats = d[1].data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Karya</h2><button class="btn btn-primary" onclick="showWorkForm()">+ Tambah Karya</button></div>';
@@ -135,7 +135,7 @@ function loadWorks(main) {
       for (var i=0; i<works.length; i++) {
         var w = works[i];
         var img = w.image_url || "";
-        if (img && img.startsWith("/")) img = "http://localhost:3001" + img;
+        if (img && img.startsWith("/")) img = img;
         html += '<tr>' +
           '<td><img src="'+img+'" onerror="this.style.display=\'none\'"></td>' +
           '<td>'+(w.title||"-")+'</td>' +
@@ -156,7 +156,7 @@ function showWorkForm(id) {
     id = 0;
   }
   if (id) {
-    fetch(API+"/api/works/"+id).then(function(r){return r.json();}).then(function(d){
+    fetch("/api/works/"+id).then(function(r){return r.json();}).then(function(d){
       renderWorkForm(main, d.data, id);
     }).catch(function(e){ main.innerHTML = errHTML(e.message); });
   } else {
@@ -165,7 +165,7 @@ function showWorkForm(id) {
 }
 
 function renderWorkForm(main, work, id) {
-  fetch(API+"/api/categories").then(function(r){return r.json();}).then(function(d){
+  fetch("/api/categories").then(function(r){return r.json();}).then(function(d){
     var cats = d.data;
     var catOpts = '<option value="">Pilih kategori</option>';
     for (var i=0; i<cats.length; i++) {
@@ -192,7 +192,7 @@ function saveWork(id) {
   var file = document.getElementById("wf-file");
   if (file.files[0]) fd.append("image", file.files[0]);
   else fd.append("image_url", document.getElementById("wf-url").value);
-  var url = API+"/api/works"+(id?"/"+id:"");
+  var url = "/api/works"+(id?"/"+id:"");
   var method = id ? "PUT" : "POST";
   fetch(url, { method: method, body: fd }).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast(id?"Karya diperbarui!":"Karya ditambahkan!"); showPage("works"); }
@@ -202,14 +202,14 @@ function saveWork(id) {
 
 function deleteWork(id) {
   if (!confirm("Hapus karya ini?")) return;
-  fetch(API+"/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
+  fetch("/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast("Karya dihapus!"); showPage("works"); }
   });
 }
 
 // ==== SERVICES ====
 function loadServices(main) {
-  fetch(API+"/api/services").then(function(r){return r.json();}).then(function(d){
+  fetch("/api/services").then(function(r){return r.json();}).then(function(d){
     var svcs = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Layanan</h2><button class="btn btn-primary" onclick="showSvcForm()">+ Tambah Layanan</button></div>';
     if (svcs.length === 0) {
@@ -219,7 +219,7 @@ function loadServices(main) {
       for (var i=0; i<svcs.length; i++) {
         var s = svcs[i];
         var img = s.image_url || "";
-        if (img && img.startsWith("/")) img = "http://localhost:3001" + img;
+        if (img && img.startsWith("/")) img = img;
         html += '<div class="card" style="padding:16px;"><div style="aspect-ratio:16/9;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#3A3430;">' +
           '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:32px;>&#128247;</div>\'">' +
           '</div><div style="font-size:14px;font-weight:600;margin-bottom:4px;">'+s.title+'</div>' +
@@ -235,7 +235,7 @@ function loadServices(main) {
 function showSvcForm(id) {
   var main = $("main");
   if (id) {
-    fetch(API+"/api/services/"+id).then(function(r){return r.json();}).then(function(d){
+    fetch("/api/services/"+id).then(function(r){return r.json();}).then(function(d){
       renderSvcForm(main, d.data, id);
     });
   } else {
@@ -269,21 +269,21 @@ function saveSvc(id) {
   if (file.files[0]) fd.append("image", file.files[0]);
   else fd.append("image_url", document.getElementById("sf-url").value);
   var method = id ? "PUT" : "POST";
-  fetch(API+"/api/services/"+(id||""), {method:method, body:fd}).then(function(r){return r.json();}).then(function(j){
+  fetch("/api/services/"+(id||""), {method:method, body:fd}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast(id?"Layanan diperbarui!":"Layanan ditambahkan!"); showPage("services"); }
   });
 }
 
 function deleteSvc(id) {
   if (!confirm("Hapus layanan?")) return;
-  fetch(API+"/api/services/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(){
+  fetch("/api/services/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(){
     toast("Layanan dihapus!"); showPage("services");
   });
 }
 
 // ==== PACKAGES ====
 function loadPkgs(main) {
-  fetch(API+"/api/packages").then(function(r){return r.json();}).then(function(d){
+  fetch("/api/packages").then(function(r){return r.json();}).then(function(d){
     var pks = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Paket</h2><button class="btn btn-primary" onclick="showPkgForm()">+ Tambah Paket</button></div>';
     if (pks.length === 0) {
@@ -307,7 +307,7 @@ function loadPkgs(main) {
 function showPkgForm(id) {
   var main = $("main");
   if (id) {
-    fetch(API+"/api/packages/"+id).then(function(r){return r.json();}).then(function(d){
+    fetch("/api/packages/"+id).then(function(r){return r.json();}).then(function(d){
       renderPkgForm(main, d.data, id);
     });
   } else {
@@ -336,19 +336,19 @@ function savePkg(id) {
     featured: document.getElementById("pf-feat").checked
   });
   var method = id ? "PUT" : "POST";
-  fetch(API+"/api/packages/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+  fetch("/api/packages/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast(id?"Paket diperbarui!":"Paket ditambahkan!"); showPage("packages"); }
   });
 }
 
 function deletePkg(id) {
   if (!confirm("Hapus paket?")) return;
-  fetch(API+"/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); showPage("packages"); });
+  fetch("/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); showPage("packages"); });
 }
 
 // ==== TESTIMONIALS ====
 function loadTMs(main) {
-  fetch(API+"/api/testimonials").then(function(r){return r.json();}).then(function(d){
+  fetch("/api/testimonials").then(function(r){return r.json();}).then(function(d){
     var tms = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Testimoni</h2><button class="btn btn-primary" onclick="showTMForm()">+ Tambah Testimoni</button></div>';
     if (tms.length === 0) {
@@ -373,7 +373,7 @@ function loadTMs(main) {
 function showTMForm(id) {
   var main = $("main");
   if (id) {
-    fetch(API+"/api/testimonials/"+id).then(function(r){return r.json();}).then(function(d){
+    fetch("/api/testimonials/"+id).then(function(r){return r.json();}).then(function(d){
       renderTMForm(main, d.data, id);
     });
   } else {
@@ -400,19 +400,19 @@ function saveTM(id) {
     rating: parseInt(document.getElementById("tf-rating").value)
   });
   var method = id ? "PUT" : "POST";
-  fetch(API+"/api/testimonials/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+  fetch("/api/testimonials/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast(id?"Testimoni diperbarui!":"Testimoni ditambahkan!"); showPage("testimonials"); }
   });
 }
 
 function deleteTM(id) {
   if (!confirm("Hapus testimoni?")) return;
-  fetch(API+"/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); showPage("testimonials"); });
+  fetch("/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); showPage("testimonials"); });
 }
 
 // ==== SETTINGS ====
 function loadSettings(main) {
-  fetch(API+"/api/settings").then(function(r){return r.json();}).then(function(d){
+  fetch("/api/settings").then(function(r){return r.json();}).then(function(d){
     var s = d.data || {};
     var cats = s.categories || [];
     var brand = s.brand_name || "Koneksi Warna";
@@ -453,13 +453,13 @@ function saveSettings() {
     wa_number: document.getElementById("s-wa").value,
     instagram: document.getElementById("s-ig").value
   });
-  fetch(API+"/api/settings/batch", {method:"POST", headers:{"Content-Type":"application/json"}, body:s}).then(function(r){return r.json();}).then(function(){
+  fetch("/api/settings/batch", {method:"POST", headers:{"Content-Type":"application/json"}, body:s}).then(function(r){return r.json();}).then(function(){
     toast("Pengaturan disimpan!");
   });
 }
 
 function saveSetting(key, value) {
-  fetch(API+"/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:key, value:value})}).then(function(){
+  fetch("/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:key, value:value})}).then(function(){
     toast(key+" disimpan!");
   });
 }
@@ -468,7 +468,7 @@ function addCat() {
   var name = document.getElementById("new-cat-name").value;
   var slug = document.getElementById("new-cat-slug").value;
   if (!name || !slug) return toast("Isi nama dan slug");
-  fetch(API+"/api/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:name, slug:slug})}).then(function(r){return r.json();}).then(function(j){
+  fetch("/api/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:name, slug:slug})}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast("Kategori ditambahkan!"); showPage("settings"); }
     else toast("Error: "+j.error);
   });
@@ -476,7 +476,7 @@ function addCat() {
 
 function deleteCat(id) {
   if (!confirm("Hapus kategori?")) return;
-  fetch(API+"/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); showPage("settings"); });
+  fetch("/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); showPage("settings"); });
 }
 
 // ==== INIT ====
@@ -484,4 +484,5 @@ showPage("dashboard");
 </script>
 </body>
 </html>
+
 
