@@ -163,6 +163,7 @@ app.put("/api/services/:id", upload.single("image"), async (req, res) => {
   );
   ok(res, { id: Number(req.params.id) });
 });
+app.get("/api/services/:id", (req, res) => { var row = db.prepare("SELECT * FROM services WHERE id = ?").get(req.params.id); if (!row) return fail(res, "Not found", 404); ok(res, row); });
 app.delete("/api/services/:id", (req, res) => { db.prepare("DELETE FROM services WHERE id = ?").run(req.params.id); ok(res, { deleted: req.params.id }); });
 
 app.get("/api/packages", (req, res) => {
@@ -174,6 +175,7 @@ app.post("/api/packages", (req, res) => {
   );
   ok(res, { id: r.lastInsertRowid });
 });
+app.get("/api/packages/:id", (req, res) => { var row = db.prepare("SELECT * FROM packages WHERE id = ?").get(req.params.id); if (!row) return fail(res, "Not found", 404); var pkg = {...row, benefits: JSON.parse(row.benefits)}; ok(res, pkg); });
 app.put("/api/packages/:id", (req, res) => {
   const e = db.prepare("SELECT * FROM packages WHERE id = ?").get(req.params.id);
   if (!e) return fail(res, "Not found", 404);
@@ -190,6 +192,7 @@ app.post("/api/testimonials", (req, res) => {
   const r = db.prepare("INSERT INTO testimonials (text, author, rating) VALUES (?,?,?)").run(req.body.text, req.body.author, req.body.rating || 5);
   ok(res, { id: r.lastInsertRowid });
 });
+app.get("/api/testimonials/:id", (req, res) => { var row = db.prepare("SELECT * FROM testimonials WHERE id = ?").get(req.params.id); if (!row) return fail(res, "Not found", 404); ok(res, row); });
 app.put("/api/testimonials/:id", (req, res) => {
   const e = db.prepare("SELECT * FROM testimonials WHERE id = ?").get(req.params.id);
   if (!e) return fail(res, "Not found", 404);
@@ -203,5 +206,6 @@ app.delete("/api/testimonials/:id", (req, res) => { db.prepare("DELETE FROM test
 app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 app.listen(PORT, () => console.log("Koneksi Warna API on http://localhost:" + PORT));
+
 
 
