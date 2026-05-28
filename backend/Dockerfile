@@ -10,13 +10,4 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3001
-
-# Start server, wait for DB creation, seed data, then keep running
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'node /app/server.js &
-    sleep 3
-    node /app/seed-docker.js 2>/dev/null || true
-    wait' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
-CMD ["/app/start.sh"]
+CMD ["/bin/sh", "/app/start.sh"]
