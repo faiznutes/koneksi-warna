@@ -49,9 +49,24 @@ td img { width:60px; height:40px; object-fit:cover; border-radius:6px; }
 .benefits-list { display:flex; flex-wrap:wrap; gap:6px; }
 .benefits-list span { background:rgba(212,160,41,.12); color:#D4A029; padding:3px 10px; border-radius:6px; font-size:12px; }
 .loading { color:#666; text-align:center; padding:40px; }
-</style>
+@media (max-width: 768px) {
+  .sidebar { position:fixed; left:-280px; top:0; bottom:0; z-index:100; transition:left .3s; }
+  .sidebar.open { left:0; }
+  .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:99; }
+  .sidebar-overlay.show { display:block; }
+  .main { padding:16px; }
+  .hamburger { display:flex !important; }
+  table { font-size:13px; }
+  td, th { padding:8px; }
+  .form-grid { grid-template-columns:1fr; }
+  .gallery-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
+  .btn-bar { flex-direction:column; align-items:stretch; gap:8px; }
+  .btn-bar .btn { width:100%; }
+}
+@media (min-width:769px) { .hamburger { display:none !important; } }</style>
 </head>
-<body>
+<body><div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<button class="hamburger" onclick="toggleSidebar()" style="display:none;position:fixed;top:16px;left:16px;z-index:98;background:#2D2824;border:none;color:#f0ece8;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:20px;align-items:center;justify-content:center;">☰</button>
 <div class="sidebar">
   <h1>Koneksi <span>Warna</span></h1>
   <nav>
@@ -481,8 +496,12 @@ function deleteCat(id) {
 
 // ==== INIT ====
 showPage("dashboard");
-</script>
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}</script>
 </body>
 </html>
+
 
 
