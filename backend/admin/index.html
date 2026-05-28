@@ -12,8 +12,8 @@ body { font-family:"Inter",sans-serif; background:#1C1816; color:#f0ece8; displa
 .sidebar h1 { font-family:"Playfair Display",serif; font-size:22px; margin-bottom:32px; }
 .sidebar h1 span { color:#D4A029; }
 .sidebar nav { display:flex; flex-direction:column; gap:4px; }
-.sidebar nav a { color:#999; text-decoration:none; padding:10px 14px; border-radius:10px; font-size:14px; transition:.2s; cursor:pointer; }
-.sidebar nav a:hover, .sidebar nav a.active { background:rgba(212,160,41,.15); color:#D4A029; }
+.sidebar nav div { color:#999; padding:10px 14px; border-radius:10px; font-size:14px; cursor:pointer; transition:.2s; }
+.sidebar nav div:hover, .sidebar nav div.active { background:rgba(212,160,41,.15); color:#D4A029; }
 .main { flex:1; padding:32px; overflow-y:auto; max-height:100vh; }
 h2 { font-size:24px; margin-bottom:24px; font-weight:700; }
 .card { background:#2D2824; border-radius:16px; padding:24px; margin-bottom:20px; border:1px solid rgba(255,255,255,.06); }
@@ -22,12 +22,13 @@ h2 { font-size:24px; margin-bottom:24px; font-weight:700; }
 .form-group { margin-bottom:16px; }
 .form-group label { display:block; font-size:13px; color:#999; margin-bottom:6px; }
 .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 14px; background:#3A3430; border:1px solid rgba(255,255,255,.08); border-radius:10px; color:#f0ece8; font-family:"Inter",sans-serif; font-size:14px; outline:none; }
-.form-group input:focus, .form-group textarea:focus { border-color:#D4A029; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:#D4A029; }
 .form-group textarea { min-height:80px; resize:vertical; }
-.btn { padding:10px 24px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:.2s; }
+.btn { padding:10px 24px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:8px; }
 .btn-primary { background:#D4A029; color:#1A1512; }
 .btn-primary:hover { background:#c49020; }
 .btn-danger { background:#8B1A1A; color:#fff; }
+.btn-danger:hover { background:#a02020; }
 .btn-sm { padding:6px 14px; font-size:12px; }
 .btn-outline { background:transparent; border:1px solid rgba(255,255,255,.2); color:#ccc; }
 .btn-outline:hover { border-color:#D4A029; color:#D4A029; }
@@ -41,513 +42,391 @@ td img { width:60px; height:40px; object-fit:cover; border-radius:6px; }
 .badge-gold { background:rgba(212,160,41,.2); color:#D4A029; }
 .actions { display:flex; gap:6px; }
 .toast { position:fixed; bottom:24px; right:24px; background:#3A3430; color:#f0ece8; padding:14px 24px; border-radius:12px; border:1px solid rgba(212,160,41,.3); font-size:14px; z-index:9999; opacity:0; transition:.3s; }
-.toast.show { opacity:1; }
+.toast.show { opacity:1; pointer-events:auto; }
 .upload-area { border:2px dashed rgba(255,255,255,.15); border-radius:12px; padding:32px; text-align:center; cursor:pointer; }
 .upload-area:hover { border-color:#D4A029; background:rgba(212,160,41,.05); }
-.upload-area p { color:#666; font-size:13px; margin-top:8px; }
 .gallery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
 .benefits-list { display:flex; flex-wrap:wrap; gap:6px; }
 .benefits-list span { background:rgba(212,160,41,.12); color:#D4A029; padding:3px 10px; border-radius:6px; font-size:12px; }
 .loading { color:#666; text-align:center; padding:40px; }
-@media (max-width: 768px) {
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.show { display:flex; }
+.modal-content { background:#2D2824; border-radius:20px; padding:32px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,255,255,.08); }
+.modal-content h3 { font-size:18px; margin-bottom:20px; color:#D4A029; }
+.confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1001; display:none; align-items:center; justify-content:center; }
+.confirm-overlay.show { display:flex; }
+.confirm-box { background:#2D2824; border-radius:16px; padding:32px; max-width:400px; width:100%; text-align:center; border:1px solid rgba(255,255,255,.08); }
+.confirm-box p { margin-bottom:24px; font-size:15px; }
+.modal-close { float:right; background:none; border:none; color:#999; cursor:pointer; font-size:24px; padding:4px 8px; }
+.modal-close:hover { color:#fff; }
+@media (max-width:768px) {
   .sidebar { position:fixed; left:-280px; top:0; bottom:0; z-index:100; transition:left .3s; }
   .sidebar.open { left:0; }
   .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:99; }
   .sidebar-overlay.show { display:block; }
   .main { padding:16px; }
-  .hamburger { display:flex !important; }
   table { font-size:13px; }
   td, th { padding:8px; }
   .form-grid { grid-template-columns:1fr; }
   .gallery-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
   .btn-bar { flex-direction:column; align-items:stretch; gap:8px; }
   .btn-bar .btn { width:100%; }
+  .hamburger { display:flex !important; }
+  .actions { flex-wrap:wrap; }
 }
-@media (min-width:769px) { .hamburger { display:none !important; } }.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
-.modal-overlay.show { display:flex; }
-.modal-content { background:#2D2824; border-radius:20px; padding:32px; max-width:600px; width:100%; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,255,255,.08); }
-.modal-content h3 { font-size:18px; margin-bottom:20px; color:#D4A029; }
-.modal-close { float:right; background:none; border:none; color:#999; cursor:pointer; font-size:24px; padding:4px 8px; }
-.modal-close:hover { color:#fff; }
-.confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1001; display:none; align-items:center; justify-content:center; }
-.confirm-overlay.show { display:flex; }
-.confirm-box { background:#2D2824; border-radius:16px; padding:32px; max-width:400px; width:100%; text-align:center; border:1px solid rgba(255,255,255,.08); }
-.confirm-box p { margin-bottom:24px; font-size:15px; }</style>
+@media (min-width:769px) { .hamburger { display:none !important; } }
+</style>
 </head>
-<body><div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <button class="hamburger" onclick="toggleSidebar()" style="display:none;position:fixed;top:16px;left:16px;z-index:98;background:#2D2824;border:none;color:#f0ece8;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:20px;align-items:center;justify-content:center;">☰</button>
 <div class="sidebar">
   <h1>Koneksi <span>Warna</span></h1>
   <nav>
-    <div onclick="showPage('dashboard')" class="active">📊 Dashboard</div>
-    <div onclick="showPage('works')">🖼️ Karya</div>
-    <div onclick="showPage('services')">📋 Layanan</div>
-    <div onclick="showPage('packages')">💰 Paket</div>
-    <div onclick="showPage('testimonials')">⭐ Testimoni</div>
-    <div onclick="showPage('settings')">⚙️ Pengaturan</div>
+    <div onclick="navigate('dashboard')" class="active">📊 Dashboard</div>
+    <div onclick="navigate('works')">🖼️ Karya</div>
+    <div onclick="navigate('services')">📋 Layanan</div>
+    <div onclick="navigate('packages')">💰 Paket</div>
+    <div onclick="navigate('testimonials')">⭐ Testimoni</div>
+    <div onclick="navigate('settings')">⚙️ Pengaturan</div>
   </nav>
 </div>
 <div class="main" id="main"><div class="loading">Memuat...</div></div>
-<div id='toast' class='toast'></div><div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal-content" id="modalContent"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content" id="modalContent"><button class="modal-close" onclick="closeModal()">&times;</button><div id="modalBody"></div></div>
 </div>
+
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <p id="confirmMsg">Yakin ingin menghapus?</p>
     <div style="display:flex;gap:12px;justify-content:center;">
       <button class="btn btn-outline" onclick="closeConfirm()">Batal</button>
-      <button class="btn btn-danger" id="confirmBtn" onclick="closeConfirm()">Hapus</button>
+      <button class="btn btn-danger" id="confirmBtn">Hapus</button>
     </div>
   </div>
 </div>
+
+<div id="toast" class="toast"></div>
+
 <script>
-const API = "";
+var API = "";
+var currentPage = "dashboard";
+var confirmCB = null;
 
 function $(id) { return document.getElementById(id); }
-function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); }, 3000); }
+function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('open'); $('sidebarOverlay').classList.toggle('show'); }
+function toast(msg) { var t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },3000); }
+function errHTML(msg) { return '<div class="card"><p style="color:#e04040;">Error: '+msg+'</p><button class="btn btn-outline btn-sm" onclick="navigate(\''+currentPage+'\')">Coba Lagi</button></div>'; }
 
-function navClick(name) { document.querySelectorAll(".sidebar nav div").forEach(function(x){ x.classList.remove("active"); }); document.querySelector(".sidebar nav div[onclick*=\""+name+"\"]").classList.add("active");
+function navigate(name) {
+  currentPage = name;
+  document.querySelectorAll(".sidebar nav div").forEach(function(x){ x.classList.remove("active"); });
+  var el = document.querySelector(".sidebar nav div[onclick*='"+name+"']");
+  if(el) el.classList.add("active");
+  $("main").innerHTML = '<div class="loading">Memuat...</div>';
+  if(window.innerWidth<=768) toggleSidebar();
+  loadPage(name);
 }
 
-let confirmCallback = null;
-function openModal(html) { document.getElementById('modalContent').innerHTML = html; document.getElementById('modalOverlay').classList.add('show'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-function showConfirm(msg, cb) { document.getElementById('confirmMsg').textContent = msg; document.getElementById('confirmOverlay').classList.add('show'); confirmCallback = cb; }
-function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); confirmCallback = null; }
-document.getElementById('confirmBtn').onclick = function(){ var cb = confirmCallback; closeConfirm(); if(cb) cb(); };function showPage(name) {
-  var main = $("main");
-  main.innerHTML = '<div class="loading">Memuat...</div>';
-  navClick(name);
-  loadPage(name, main);
+function loadPage(name) {
+  if(name==="dashboard") loadDash();
+  else if(name==="works") loadWorks();
+  else if(name==="services") loadSvc();
+  else if(name==="packages") loadPkg();
+  else if(name==="testimonials") loadTM();
+  else if(name==="settings") loadSettings();
 }
 
-function errHTML(msg) { return '<div class="card"><p style="color:#e04040;">Error: '+msg+'</p><button class="btn btn-outline btn-sm" onclick="showPage(\''+currentName+'\')">Coba Lagi</button></div>'; }
-var currentName = "";
+function openModal(html) { $("modalBody").innerHTML = html; $("modalOverlay").classList.add("show"); }
+function closeModal() { $("modalOverlay").classList.remove("show"); }
+function showConfirm(msg, cb) { $("confirmMsg").textContent = msg; $("confirmOverlay").classList.add("show"); confirmCB = cb; }
+function closeConfirm() { $("confirmOverlay").classList.remove("show"); confirmCB = null; }
+$("confirmBtn").onclick = function(){ var cb = confirmCB; closeConfirm(); if(cb) cb(); };
 
-function loadPage(name, main) {
-  currentName = name;
-  if (name === "dashboard") loadDash(main);
-  else if (name === "works") loadWorks(main);
-  else if (name === "services") loadServices(main);
-  else if (name === "packages") loadPkgs(main);
-  else if (name === "testimonials") loadTMs(main);
-  else if (name === "settings") loadSettings(main);
-}
-
-// ==== DASHBOARD ====
-function loadDash(main) {
+// === DASHBOARD ===
+function loadDash() {
   Promise.all([
     fetch("/api/works").then(function(r){return r.json();}),
     fetch("/api/services").then(function(r){return r.json();}),
     fetch("/api/packages").then(function(r){return r.json();}),
     fetch("/api/testimonials").then(function(r){return r.json();})
   ]).then(function(d){
-    var w = d[0].data, s = d[1].data, p = d[2].data, t = d[3].data;
-    main.innerHTML =
-      '<h2>Dashboard</h2>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;">' +
-        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+w.length+'</div><div style="color:#999;font-size:14px;">Karya</div></div>' +
-        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+s.length+'</div><div style="color:#999;font-size:14px;">Layanan</div></div>' +
-        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+p.length+'</div><div style="color:#999;font-size:14px;">Paket</div></div>' +
-        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+t.length+'</div><div style="color:#999;font-size:14px;">Testimoni</div></div>' +
-      '</div>' +
-      '<div class="card"><h3>Akses Cepat</h3><div style="display:flex;flex-wrap:wrap;gap:12px;">' +
-        '<button class="btn btn-primary" onclick="showPage(\'works\')">🖼️ Kelola Karya</button>' +
-        '<button class="btn btn-primary" onclick="showPage(\'services\')">📋 Kelola Layanan</button>' +
-        '<button class="btn btn-primary" onclick="showPage(\'packages\')">💰 Kelola Paket</button>' +
-        '<button class="btn btn-primary" onclick="showPage(\'settings\')">⚙️ Pengaturan</button>' +
-      '</div></div>';
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+    var m = $("main");
+    m.innerHTML = '<h2>Dashboard</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;">' +
+      '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+d[0].data.length+'</div><div style="color:#999;font-size:14px;">Karya</div></div>' +
+      '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+d[1].data.length+'</div><div style="color:#999;font-size:14px;">Layanan</div></div>' +
+      '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+d[2].data.length+'</div><div style="color:#999;font-size:14px;">Paket</div></div>' +
+      '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+d[3].data.length+'</div><div style="color:#999;font-size:14px;">Testimoni</div></div></div>';
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
-// ==== WORKS ====
-function loadWorks(main) {
+// === WORKS ===
+function loadWorks() {
   Promise.all([
     fetch("/api/works").then(function(r){return r.json();}),
     fetch("/api/categories").then(function(r){return r.json();})
   ]).then(function(d){
     var works = d[0].data, cats = d[1].data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Karya</h2><button class="btn btn-primary" onclick="showWorkForm()">+ Tambah Karya</button></div>';
-    if (works.length === 0) {
-      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada karya. Klik Tambah Karya untuk mulai.</p></div>';
-    } else {
+    if(!works.length){ html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada karya.</p></div>'; }
+    else {
       html += '<table><thead><tr><th>Foto</th><th>Judul</th><th>Kategori</th><th>Featured</th><th>Aksi</th></tr></thead><tbody>';
-      for (var i=0; i<works.length; i++) {
-        var w = works[i];
-        var img = w.image_url || "";
-        if (img && img.startsWith("/")) img = img;
-        html += '<tr>' +
-          '<td><img src="'+img+'" onerror="this.style.display=\'none\'"></td>' +
-          '<td>'+(w.title||"-")+'</td>' +
-          '<td><span class="badge badge-gold">'+(w.category_name||"Tanpa")+'</span></td>' +
-          '<td>'+(w.featured?'<span class="badge badge-gold">&#9733; Featured</span>':'')+'</td>' +
-          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showWorkForm('+w.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteWork('+w.id+')">Hapus</button></td>' +
-          '</tr>';
+      for(var i=0;i<works.length;i++){
+        var w=works[i], img=(w.image_url||"").startsWith("/")?"https://koneksi.faiznute.site"+w.image_url:w.image_url;
+        html += '<tr><td><img src="'+img+'" onerror="this.style.display=\'none\'"></td><td>'+(w.title||"-")+'</td><td><span class="badge badge-gold">'+(w.category_name||"-")+'</span></td><td>'+(w.featured?'<span class="badge badge-gold">★ Featured</span>':'')+'</td><td class="actions"><button class="btn btn-sm btn-outline" onclick="showWorkForm('+w.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="delWork('+w.id+')">Hapus</button></td></tr>';
       }
       html += '</tbody></table>';
     }
-    main.innerHTML = html;
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+    $("main").innerHTML = html;
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
 function showWorkForm(id) {
-  var main = $("main");
-  if (!id) {
-    id = 0;
+  if(!id) id=0;
+  var div = document.createElement("div");
+  function render(main, d, i) {
+    fetch("/api/categories").then(function(r){return r.json();}).then(function(cd){
+      var opts = '<option value="">Pilih</option>';
+      for(var j=0;j<cd.data.length;j++) opts += '<option value="'+cd.data[j].id+'"'+(d.category_id==cd.data[j].id?' selected':'')+'>'+cd.data[j].name+'</option>';
+      main.innerHTML = '<div class="form-grid">' +
+        '<div class="form-group"><label>Judul</label><input id="wf-title" value="'+(d.title||"")+'"></div>' +
+        '<div class="form-group"><label>Kategori</label><select id="wf-cat">'+opts+'</select></div>' +
+        '<div class="form-group"><label>URL Gambar</label><input id="wf-url" value="'+(d.image_url||"")+'"></div>' +
+        '<div class="form-group"><label>Featured</label><label style="color:#ccc;display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="checkbox" id="wf-feat"'+(d.featured?' checked':'')+'> Featured</label></div>' +
+        '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveWork('+i+')">💾 Simpan</button></div>';
+      openModal(main.innerHTML);
+    });
   }
-  if (id) {
-    fetch("/api/works/"+id).then(function(r){return r.json();}).then(function(d){
-      renderWorkForm(main, d.data, id);
-    }).catch(function(e){ main.innerHTML = errHTML(e.message); });
-  } else {
-    renderWorkForm(main, {title:"",category_id:"",image_url:"",featured:0,sort_order:0}, 0);
-  }
-}
-
-function renderWorkForm(main, work, id) {
-  fetch("/api/categories").then(function(r){return r.json();}).then(function(d){
-    var cats = d.data;
-    var catOpts = '<option value="">Pilih kategori</option>';
-    for (var i=0; i<cats.length; i++) {
-      catOpts += '<option value="'+cats[i].id+'"'+(work.category_id==cats[i].id?' selected':'')+'>'+cats[i].name+'</option>';
-    }
-    main.innerHTML =
-      '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Karya</h2><button class="btn btn-outline" onclick="showPage(\'works\')">&larr; Kembali</button></div>' +
-      '<div class="card"><div class="form-grid">' +
-        '<div class="form-group"><label>Judul</label><input id="wf-title" value="'+(work.title||"")+'"></div>' +
-        '<div class="form-group"><label>Kategori</label><select id="wf-cat">'+catOpts+'</select></div>' +
-        '<div class="form-group"><label>URL Gambar</label><input id="wf-url" value="'+(work.image_url||"")+'" placeholder="https://...jpg"></div>' +
-        '<div class="form-group"><label>Featured</label><div><label style="color:#ccc;display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="checkbox" id="wf-feat"'+(work.featured?' checked':'')+'> Jadikan unggulan</label></div></div>' +
-      '</div>' +
-      '<div class="upload-area" onclick="document.getElementById(\'wf-file\').click()"><p style="font-size:28px;margin:0;">&#128247;</p><p>Klik untuk upload foto</p><input type="file" id="wf-file" accept="image/*" style="display:none"></div>' +
-      '<div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveWork('+id+')">&#128190; Simpan</button></div></div>';
-  });
+  if(id) { fetch("/api/works/"+id).then(function(r){return r.json();}).then(function(d){ render(div, d.data, id); }); }
+  else { render(div, {title:"",category_id:"",image_url:"",featured:0,sort_order:0}, 0); }
 }
 
 function saveWork(id) {
   var fd = new FormData();
-  fd.append("title", document.getElementById("wf-title").value);
-  fd.append("category_id", document.getElementById("wf-cat").value || "");
-  fd.append("featured", document.getElementById("wf-feat").checked ? "1" : "0");
-  var file = document.getElementById("wf-file");
-  if (file.files[0]) fd.append("image", file.files[0]);
-  else fd.append("image_url", document.getElementById("wf-url").value);
+  fd.append("title", $("wf-title").value);
+  fd.append("category_id", $("wf-cat").value||"");
+  fd.append("featured", $("wf-feat").checked?"1":"0");
+  fd.append("image_url", $("wf-url").value);
   var url = "/api/works"+(id?"/"+id:"");
-  var method = id ? "PUT" : "POST";
-  fetch(url, { method: method, body: fd }).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast(id?"Karya diperbarui!":"Karya ditambahkan!"); closeModal(); showPage("works"); }
+  fetch(url, {method:id?"PUT":"POST", body:fd}).then(function(r){return r.json();}).then(function(j){
+    if(j.ok){ toast(id?"Karya diperbarui!":"Karya ditambahkan!"); closeModal(); loadWorks(); }
     else toast("Error: "+j.error);
-  }).catch(function(e){ toast("Error: "+e.message); });
+  }).catch(function(e){ toast("Error"); });
 }
 
-function deleteWork(id) { showConfirm("Yakin ingin menghapus karya ini?", function() {
-  fetch("/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast("Karya dihapus!"); showPage("works"); }
+function delWork(id) {
+  showConfirm("Yakin ingin menghapus karya ini?", function(){
+    fetch("/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
+      if(j.ok){ toast("Karya dihapus!"); loadWorks(); }
+    });
   });
-});
 }
 
-// ==== SERVICES ====
-function loadServices(main) {
+// === SERVICES ===
+function loadSvc() {
   fetch("/api/services").then(function(r){return r.json();}).then(function(d){
     var svcs = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Layanan</h2><button class="btn btn-primary" onclick="showSvcForm()">+ Tambah Layanan</button></div>';
-    if (svcs.length === 0) {
-      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada layanan.</p></div>';
-    } else {
+    if(!svcs.length){ html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada layanan.</p></div>'; }
+    else {
       html += '<div class="gallery-grid">';
-      for (var i=0; i<svcs.length; i++) {
-        var s = svcs[i];
-        var img = s.image_url || "";
-        if (img && img.startsWith("/")) img = img;
-        html += '<div class="card" style="padding:16px;"><div style="aspect-ratio:16/9;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#3A3430;">' +
-          '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:32px;>&#128247;</div>\'">' +
-          '</div><div style="font-size:14px;font-weight:600;margin-bottom:4px;">'+s.title+'</div>' +
-          '<div style="font-size:12px;color:#999;margin-bottom:8px;">'+(s.description?s.description.substring(0,60):"")+'</div>' +
-          '<div class="actions"><button class="btn btn-sm btn-outline" onclick="showSvcForm('+s.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteSvc('+s.id+')">Hapus</button></div></div>';
+      for(var i=0;i<svcs.length;i++){
+        var s=svcs[i], img=(s.image_url||"").startsWith("/")?"https://koneksi.faiznute.site"+s.image_url:s.image_url;
+        html += '<div class="card" style="padding:16px;"><div style="aspect-ratio:16/9;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#3A3430;"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:32px;>📷</div>\'"></div><div style="font-weight:600;margin-bottom:4px;">'+s.title+'</div><div style="font-size:12px;color:#999;margin-bottom:8px;">'+(s.description?s.description.substring(0,60):"")+'</div><div class="actions"><button class="btn btn-sm btn-outline" onclick="showSvcForm('+s.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="delSvc('+s.id+')">Hapus</button></div></div>';
       }
       html += '</div>';
     }
-    main.innerHTML = html;
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+    $("main").innerHTML = html;
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
 function showSvcForm(id) {
-  var main = $("main");
-  if (id) {
-    fetch("/api/services/"+id).then(function(r){return r.json();}).then(function(d){
-      renderSvcForm(main, d.data, id);
-    });
-  } else {
-    renderSvcForm(main, {title:"",description:"",icon:"Camera",image_url:""}, 0);
+  if(!id) id=0;
+  var div = document.createElement("div");
+  function render(main, d, i) {
+    var icons = ["Camera","Heart","Star","Users"];
+    var opts = "";
+    for(var j=0;j<icons.length;j++) opts += '<option value="'+icons[j]+'"'+(d.icon==icons[j]?' selected':'')+'>'+icons[j]+'</option>';
+    main.innerHTML = '<div class="form-grid">' +
+      '<div class="form-group"><label>Nama</label><input id="sf-title" value="'+(d.title||"")+'"></div>' +
+      '<div class="form-group"><label>Ikon</label><select id="sf-icon">'+opts+'</select></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Deskripsi</label><textarea id="sf-desc" rows="3">'+(d.description||"")+'</textarea></div>' +
+      '<div class="form-group"><label>URL Gambar</label><input id="sf-url" value="'+(d.image_url||"")+'"></div>' +
+      '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveSvc('+i+')">💾 Simpan</button></div>';
+    openModal(main.innerHTML);
   }
-}
-
-function renderSvcForm(main, s, id) {
-  var icons = ["Camera","Heart","Star","Users"];
-  var iconOpts = "";
-  for (var i=0; i<icons.length; i++) {
-    iconOpts += '<option value="'+icons[i]+'"'+(s.icon==icons[i]?' selected':'')+'>'+icons[i]+'</option>';
-  }
-  main.innerHTML =
-    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Layanan</h2><button class="btn btn-outline" onclick="showPage(\'services\')">&larr; Kembali</button></div>' +
-    '<div class="card"><div class="form-grid">' +
-      '<div class="form-group"><label>Nama Layanan</label><input id="sf-title" value="'+(s.title||"")+'"></div>' +
-      '<div class="form-group"><label>Ikon</label><select id="sf-icon">'+iconOpts+'</select></div>' +
-      '<div class="form-group" style="grid-column:1/-1;"><label>Deskripsi</label><textarea id="sf-desc" rows="3">'+(s.description||"")+'</textarea></div>' +
-      '<div class="form-group"><label>URL Gambar</label><input id="sf-url" value="'+(s.image_url||"")+'"></div>' +
-      '<div class="form-group"><label>Atau upload</label><input type="file" id="sf-file" accept="image/*"></div>' +
-    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveSvc('+(id||"")+')">&#128190; Simpan</button></div></div>';
+  if(id) { fetch("/api/services/"+id).then(function(r){return r.json();}).then(function(d){ render(div, d.data, id); }); }
+  else { render(div, {title:"",description:"",icon:"Camera",image_url:""}, 0); }
 }
 
 function saveSvc(id) {
   var fd = new FormData();
-  fd.append("title", document.getElementById("sf-title").value);
-  fd.append("description", document.getElementById("sf-desc").value);
-  fd.append("icon", document.getElementById("sf-icon").value);
-  var file = document.getElementById("sf-file");
-  if (file.files[0]) fd.append("image", file.files[0]);
-  else fd.append("image_url", document.getElementById("sf-url").value);
-  var method = id ? "PUT" : "POST";
-  fetch("/api/services/"+(id||""), {method:method, body:fd}).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast(id?"Layanan diperbarui!":"Layanan ditambahkan!"); closeModal(); showPage("services"); }
+  fd.append("title", $("sf-title").value);
+  fd.append("description", $("sf-desc").value);
+  fd.append("icon", $("sf-icon").value);
+  fd.append("image_url", $("sf-url").value);
+  fetch("/api/services/"+(id||""), {method:id?"PUT":"POST", body:fd}).then(function(r){return r.json();}).then(function(j){
+    if(j.ok){ toast(id?"Layanan diperbarui!":"Layanan ditambahkan!"); closeModal(); loadSvc(); }
   });
 }
 
-function deleteSvc(id) { showConfirm("Yakin ingin menghapus layanan ini?", function() {
-  fetch("/api/services/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(){
-    toast("Layanan dihapus!"); showPage("services");
-  });
+function delSvc(id) {
+  showConfirm("Yakin ingin menghapus layanan ini?", function(){
+    fetch("/api/services/"+id, {method:"DELETE"}).then(function(){ toast("Layanan dihapus!"); loadSvc(); });
   });
 }
 
-// ==== PACKAGES ====
-function loadPkgs(main) {
+// === PACKAGES ===
+function loadPkg() {
   fetch("/api/packages").then(function(r){return r.json();}).then(function(d){
     var pks = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Paket</h2><button class="btn btn-primary" onclick="showPkgForm()">+ Tambah Paket</button></div>';
-    if (pks.length === 0) {
-      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada paket.</p></div>';
-    } else {
+    if(!pks.length){ html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada paket.</p></div>'; }
+    else {
       html += '<table><thead><tr><th>Paket</th><th>Harga</th><th>Benefit</th><th>Populer</th><th>Aksi</th></tr></thead><tbody>';
-      for (var i=0; i<pks.length; i++) {
-        var p = pks[i];
-        var bens = "";
-        if (p.benefits) { for (var j=0; j<p.benefits.length; j++) { bens += '<span>'+p.benefits[j]+'</span> '; } }
-        html += '<tr><td><strong>'+p.title+'</strong></td><td style="color:#D4A029;">'+(p.price||"-")+'</td>' +
-          '<td><div class="benefits-list">'+bens+'</div></td><td>'+(p.featured?'<span class="badge badge-gold">&#9733; Populer</span>':'')+'</td>' +
-          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showPkgForm('+p.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deletePkg('+p.id+')">Hapus</button></td></tr>';
+      for(var i=0;i<pks.length;i++){
+        var p=pks[i], bens="";
+        if(p.benefits){ for(var j=0;j<p.benefits.length;j++) bens += '<span>'+p.benefits[j]+'</span> '; }
+        html += '<tr><td><strong>'+p.title+'</strong></td><td style="color:#D4A029;">'+(p.price||"-")+'</td><td><div class="benefits-list">'+bens+'</div></td><td>'+(p.featured?'<span class="badge badge-gold">★ Populer</span>':'')+'</td><td class="actions"><button class="btn btn-sm btn-outline" onclick="showPkgForm('+p.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="delPkg('+p.id+')">Hapus</button></td></tr>';
       }
       html += '</tbody></table>';
     }
-    main.innerHTML = html;
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+    $("main").innerHTML = html;
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
 function showPkgForm(id) {
-  var main = $("main");
-  if (id) {
-    fetch("/api/packages/"+id).then(function(r){return r.json();}).then(function(d){
-      renderPkgForm(main, d.data, id);
-    });
-  } else {
-    renderPkgForm(main, {title:"",price:"",benefits:[],featured:0}, 0);
+  if(!id) id=0;
+  var div = document.createElement("div");
+  function render(main, d, i) {
+    var bens = (d.benefits||[]).join("\n");
+    main.innerHTML = '<div class="form-grid">' +
+      '<div class="form-group"><label>Nama Paket</label><input id="pf-title" value="'+(d.title||"")+'"></div>' +
+      '<div class="form-group"><label>Harga</label><input id="pf-price" value="'+(d.price||"")+'"></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Benefit (1 baris per item)</label><textarea id="pf-benefits" rows="5">'+bens+'</textarea></div>' +
+      '<div class="form-group"><label style="color:#ccc;display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pf-feat"'+(d.featured?' checked':'')+'> Paket populer</label></div>' +
+      '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="savePkg('+i+')">💾 Simpan</button></div>';
+    openModal(main.innerHTML);
   }
-}
-
-function renderPkgForm(main, p, id) {
-  var bens = (p.benefits||[]).join("\n");
-  main.innerHTML =
-    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Paket</h2><button class="btn btn-outline" onclick="showPage(\'packages\')">&larr; Kembali</button></div>' +
-    '<div class="card"><div class="form-grid">' +
-      '<div class="form-group"><label>Nama Paket</label><input id="pf-title" value="'+(p.title||"")+'"></div>' +
-      '<div class="form-group"><label>Harga</label><input id="pf-price" value="'+(p.price||"")+'" placeholder="Mulai Rp ..."></div>' +
-      '<div class="form-group" style="grid-column:1/-1;"><label>Benefit (satu baris per item)</label><textarea id="pf-benefits" rows="5">'+bens+'</textarea></div>' +
-      '<div class="form-group"><label style="color:#ccc;display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pf-feat"'+(p.featured?' checked':'')+'> Paket populer</label></div>' +
-    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="savePkg('+(id||"")+')">&#128190; Simpan</button></div></div>';
+  if(id) { fetch("/api/packages/"+id).then(function(r){return r.json();}).then(function(d){ render(div, d.data, id); }); }
+  else { render(div, {title:"",price:"",benefits:[],featured:0}, 0); }
 }
 
 function savePkg(id) {
-  var bens = document.getElementById("pf-benefits").value.split("\n").filter(function(x){return x;});
-  var body = JSON.stringify({
-    title: document.getElementById("pf-title").value,
-    price: document.getElementById("pf-price").value,
-    benefits: bens,
-    featured: document.getElementById("pf-feat").checked
-  });
-  var method = id ? "PUT" : "POST";
-  fetch("/api/packages/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast(id?"Paket diperbarui!":"Paket ditambahkan!"); closeModal(); showPage("packages"); }
+  var bens = $("pf-benefits").value.split("\n").filter(function(x){return x;});
+  var body = JSON.stringify({title:$("pf-title").value, price:$("pf-price").value, benefits:bens, featured:$("pf-feat").checked});
+  fetch("/api/packages/"+(id||""), {method:id?"PUT":"POST", headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+    if(j.ok){ toast(id?"Paket diperbarui!":"Paket ditambahkan!"); closeModal(); loadPkg(); }
   });
 }
 
-function deletePkg(id) { showConfirm("Yakin ingin menghapus paket ini?", function() {
-  fetch("/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); showPage("packages"); });
-});
+function delPkg(id) {
+  showConfirm("Yakin ingin menghapus paket ini?", function(){
+    fetch("/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); loadPkg(); });
+  });
 }
 
-// ==== TESTIMONIALS ====
-function loadTMs(main) {
+// === TESTIMONIALS ===
+function loadTM() {
   fetch("/api/testimonials").then(function(r){return r.json();}).then(function(d){
     var tms = d.data;
     var html = '<div class="btn-bar"><h2 style="margin:0;">Testimoni</h2><button class="btn btn-primary" onclick="showTMForm()">+ Tambah Testimoni</button></div>';
-    if (tms.length === 0) {
-      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada testimoni.</p></div>';
-    } else {
+    if(!tms.length){ html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada testimoni.</p></div>'; }
+    else {
       html += '<table><thead><tr><th>Nama</th><th>Testimoni</th><th>Rating</th><th>Aksi</th></tr></thead><tbody>';
-      for (var i=0; i<tms.length; i++) {
-        var t = tms[i];
-        var stars = "";
-        for (var s=0; s<t.rating; s++) stars += "\u2605";
-        for (var s=t.rating; s<5; s++) stars += "\u2606";
-        html += '<tr><td><strong>'+(t.author||"")+'</strong></td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"'+t.text+'"</td>' +
-          '<td>'+stars+'</td>' +
-          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showTMForm('+t.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteTM('+t.id+')">Hapus</button></td></tr>';
+      for(var i=0;i<tms.length;i++){
+        var t=tms[i], stars="";
+        for(var s=0;s<t.rating;s++) stars += "\u2605";
+        for(var s=t.rating;s<5;s++) stars += "\u2606";
+        html += '<tr><td><strong>'+(t.author||"")+'</strong></td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"'+t.text+'"</td><td>'+stars+'</td><td class="actions"><button class="btn btn-sm btn-outline" onclick="showTMForm('+t.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="delTM('+t.id+')">Hapus</button></td></tr>';
       }
       html += '</tbody></table>';
     }
-    main.innerHTML = html;
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+    $("main").innerHTML = html;
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
 function showTMForm(id) {
-  var main = $("main");
-  if (id) {
-    fetch("/api/testimonials/"+id).then(function(r){return r.json();}).then(function(d){
-      renderTMForm(main, d.data, id);
-    });
-  } else {
-    renderTMForm(main, {text:"",author:"",rating:5}, 0);
+  if(!id) id=0;
+  var div = document.createElement("div");
+  function render(main, d, i) {
+    var opts = "";
+    for(var r=5;r>=1;r--) opts += '<option value="'+r+'"'+(d.rating==r?' selected':'')+'>'+r+' Bintang</option>';
+    main.innerHTML = '<div class="form-grid">' +
+      '<div class="form-group"><label>Nama</label><input id="tf-author" value="'+(d.author||"")+'"></div>' +
+      '<div class="form-group"><label>Rating</label><select id="tf-rating">'+opts+'</select></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Testimoni</label><textarea id="tf-text" rows="4">'+(d.text||"")+'</textarea></div>' +
+      '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveTM('+i+')">💾 Simpan</button></div>';
+    openModal(main.innerHTML);
   }
-}
-
-function renderTMForm(main, t, id) {
-  var ratingOpts = "";
-  for (var i=5; i>=1; i--) { ratingOpts += '<option value="'+i+'"'+(t.rating==i?' selected':'')+'>'+i+' Bintang</option>'; }
-  main.innerHTML =
-    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Testimoni</h2><button class="btn btn-outline" onclick="showPage(\'testimonials\')">&larr; Kembali</button></div>' +
-    '<div class="card"><div class="form-grid">' +
-      '<div class="form-group"><label>Nama Klien</label><input id="tf-author" value="'+(t.author||"")+'"></div>' +
-      '<div class="form-group"><label>Rating</label><select id="tf-rating">'+ratingOpts+'</select></div>' +
-      '<div class="form-group" style="grid-column:1/-1;"><label>Testimoni</label><textarea id="tf-text" rows="4">'+(t.text||"")+'</textarea></div>' +
-    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveTM('+(id||"")+')">&#128190; Simpan</button></div></div>';
+  if(id) { fetch("/api/testimonials/"+id).then(function(r){return r.json();}).then(function(d){ render(div, d.data, id); }); }
+  else { render(div, {text:"",author:"",rating:5}, 0); }
 }
 
 function saveTM(id) {
-  var body = JSON.stringify({
-    author: document.getElementById("tf-author").value,
-    text: document.getElementById("tf-text").value,
-    rating: parseInt(document.getElementById("tf-rating").value)
-  });
-  var method = id ? "PUT" : "POST";
-  fetch("/api/testimonials/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast(id?"Testimoni diperbarui!":"Testimoni ditambahkan!"); closeModal(); showPage("testimonials"); }
+  var body = JSON.stringify({author:$("tf-author").value, text:$("tf-text").value, rating:parseInt($("tf-rating").value)});
+  fetch("/api/testimonials/"+(id||""), {method:id?"PUT":"POST", headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+    if(j.ok){ toast(id?"Testimoni diperbarui!":"Testimoni ditambahkan!"); closeModal(); loadTM(); }
   });
 }
 
-function deleteTM(id) { showConfirm("Yakin ingin menghapus testimoni ini?", function() {
-  fetch("/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); showPage("testimonials"); });
-});
+function delTM(id) {
+  showConfirm("Yakin ingin menghapus testimoni ini?", function(){
+    fetch("/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); loadTM(); });
+  });
 }
 
-// ==== SETTINGS ====
-function loadSettings(main) {
+// === SETTINGS ===
+function loadSettings() {
   fetch("/api/settings").then(function(r){return r.json();}).then(function(d){
-    var s = d.data || {};
-    var cats = s.categories || [];
-    var brand = s.brand_name || "Koneksi Warna";
-    var tagline = s.tagline || "Fotografer Surabaya";
-    var bio = s.bio || "";
-    var wa = s.wa_number || "6285155043133";
-    var ig = s.instagram || "koneksi.warna";
-    var hero = s.hero_bg || "";
+    var s = d.data||{}, cats = s.categories||[];
+    var brand = s.brand_name||"Koneksi Warna", tagline = s.tagline||"", bio = s.bio||"", wa = s.wa_number||"6289681047082", ig = s.instagram||"koneksiwarna", hero = s.hero_bg||"";
     var catRows = "";
-    for (var i=0; i<cats.length; i++) {
-      catRows += '<tr><td>'+cats[i].name+'</td><td><code>'+cats[i].slug+'</code></td><td class="actions"><button class="btn btn-sm btn-danger" onclick="deleteCat('+cats[i].id+')">Hapus</button></td></tr>';
-    }
-    main.innerHTML =
+    for(var i=0;i<cats.length;i++) catRows += '<tr><td>'+cats[i].name+'</td><td><code>'+cats[i].slug+'</code></td><td class="actions"><button class="btn btn-sm btn-danger" onclick="delCat('+cats[i].id+')">Hapus</button></td></tr>';
+    $("main").innerHTML =
       '<h2>Pengaturan</h2>' +
-      '<div class="card"><h3>Informasi Profil</h3><div class="form-grid">' +
-        '<div class="form-group"><label>Nama Brand</label><input id="s-brand" value="'+brand+'"></div>' +
+      '<div class="card"><h3>Profil</h3><div class="form-grid">' +
+        '<div class="form-group"><label>Brand</label><input id="s-brand" value="'+brand+'"></div>' +
         '<div class="form-group"><label>Tagline</label><input id="s-tagline" value="'+tagline+'"></div>' +
-        '<div class="form-group" style="grid-column:1/-1;"><label>Bio / Tentang</label><textarea id="s-bio" rows="4">'+bio+'</textarea></div>' +
-        '<div class="form-group"><label>Nomor WhatsApp</label><input id="s-wa" value="'+wa+'"></div>' +
+        '<div class="form-group" style="grid-column:1/-1;"><label>Bio</label><textarea id="s-bio" rows="4">'+bio+'</textarea></div>' +
+        '<div class="form-group"><label>WhatsApp</label><input id="s-wa" value="'+wa+'"></div>' +
         '<div class="form-group"><label>Instagram</label><input id="s-ig" value="'+ig+'"></div>' +
-      '</div><div style="margin-top:16px;"><button class="btn btn-primary" onclick="saveSettings()">&#128190; Simpan Pengaturan</button></div></div>' +
+      '</div><div style="margin-top:16px;"><button class="btn btn-primary" onclick="saveSettings()">💾 Simpan</button></div></div>' +
       '<div class="card"><h3>Kategori</h3><div style="display:flex;gap:8px;margin-bottom:16px;">' +
         '<input id="new-cat-name" placeholder="Nama" style="flex:1;padding:10px;background:#3A3430;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0ece8;">' +
         '<input id="new-cat-slug" placeholder="slug" style="flex:1;padding:10px;background:#3A3430;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0ece8;">' +
         '<button class="btn btn-primary" onclick="addCat()">Tambah</button></div>' +
         '<table><thead><tr><th>Nama</th><th>Slug</th><th>Aksi</th></tr></thead><tbody>'+catRows+'</tbody></table></div>' +
-      '<div class="card"><h3>Hero Background</h3><p style="color:#666;font-size:13px;margin-bottom:12px;">URL gambar background hero.</p>' +
-        '<div class="form-group"><input id="s-hero" value="'+hero+'" style="width:100%;"></div>' +
-        '<div style="margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="saveSetting(\'hero_bg\',document.getElementById(\'s-hero\').value)">Simpan Background</button></div></div>';
-  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+      '<div class="card"><h3>Hero Background</h3><div class="form-group"><input id="s-hero" value="'+hero+'" style="width:100%;"></div>' +
+      '<div style="margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="fetch(\'/api/settings\',{method:\'POST\',headers:{\'Content-Type\':\'application/json\'},body:JSON.stringify({key:\'hero_bg\',value:$(\'s-hero\').value})}).then(function(){toast(\'Hero saved!\');})">Simpan</button></div></div>';
+  }).catch(function(e){ $("main").innerHTML = errHTML(e.message); });
 }
 
 function saveSettings() {
-  var data = {
-    brand_name: document.getElementById("s-brand").value,
-    tagline: document.getElementById("s-tagline").value,
-    bio: document.getElementById("s-bio").value,
-    wa_number: document.getElementById("s-wa").value,
-    instagram: document.getElementById("s-ig").value
-  };
-  fetch("/api/settings/batch", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ settings: data })
-  }).then(function(r){return r.json();}).then(function(){
+  var data = {brand_name:$("s-brand").value, tagline:$("s-tagline").value, bio:$("s-bio").value, wa_number:$("s-wa").value, instagram:$("s-ig").value};
+  fetch("/api/settings/batch", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({settings:data})}).then(function(r){return r.json();}).then(function(){
     toast("Pengaturan disimpan!");
   });
 }
 
-function saveSetting(key, value) {
-  fetch("/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:key, value:value})}).then(function(){
-    toast(key+" disimpan!");
-  });
-}
-
 function addCat() {
-  var name = document.getElementById("new-cat-name").value;
-  var slug = document.getElementById("new-cat-slug").value;
-  if (!name || !slug) return toast("Isi nama dan slug");
-  fetch("/api/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:name, slug:slug})}).then(function(r){return r.json();}).then(function(j){
-    if (j.ok) { toast("Kategori ditambahkan!"); showPage("settings"); }
+  var name = $("new-cat-name").value, slug = $("new-cat-slug").value;
+  if(!name||!slug) return toast("Isi nama dan slug");
+  fetch("/api/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:name,slug:slug})}).then(function(r){return r.json();}).then(function(j){
+    if(j.ok){ toast("Kategori ditambahkan!"); loadSettings(); }
     else toast("Error: "+j.error);
   });
 }
 
-function deleteCat(id) { showConfirm("Yakin ingin menghapus kategori ini?", function() {
-  fetch("/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); showPage("settings"); });
-});
+function delCat(id) {
+  showConfirm("Yakin ingin menghapus kategori ini?", function(){
+    fetch("/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); loadSettings(); });
+  });
 }
 
-// ==== INIT ====
-showPage("dashboard");
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('show');
-}</script>
+// === INIT ===
+navigate("dashboard");
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
