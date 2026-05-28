@@ -203,9 +203,10 @@ app.put("/api/testimonials/:id", (req, res) => {
 });
 app.delete("/api/testimonials/:id", (req, res) => { db.prepare("DELETE FROM testimonials WHERE id = ?").run(req.params.id); ok(res, { deleted: req.params.id }); });
 
-app.use("/admin", express.static(path.join(__dirname, "admin")));
+app.use("/admin", express.static(path.join(__dirname, "admin"), { redirect: false }));
 
 app.listen(PORT, () => console.log("Koneksi Warna API on http://localhost:" + PORT));
+
 
 
 
