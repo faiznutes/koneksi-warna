@@ -11,7 +11,7 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative flex min-h-screen items-center justify-start overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105" style={{ backgroundImage: `url(${bg})` }} />
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105" alt="Koneksi Warna Fotografi Surabaya" style={{ backgroundImage: `url(${bg})` }} />
       <div className="absolute inset-0 bg-black/70" />
       <div className="absolute inset-0 bg-gradient-to-t from-surabaya-dark/60 via-transparent to-black/30" />
       <div className="absolute top-1/4 right-0 w-96 h-96 bg-surabaya-gold/5 rounded-full blur-3xl" />
@@ -35,6 +35,7 @@ export default function Hero() {
     </section>
   );
 }
+
 
 
 
