@@ -7,7 +7,6 @@ services:
     ports:
       - "3002:3001"
     volumes:
-      - ./backend/koneksi.db:/app/koneksi.db
       - ./backend/uploads:/app/uploads
     environment:
       - PORT=3001
@@ -29,5 +28,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+
 
 
