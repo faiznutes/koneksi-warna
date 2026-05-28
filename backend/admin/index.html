@@ -244,6 +244,7 @@ function deleteWork(id) { showConfirm("Yakin ingin menghapus karya ini?", functi
   fetch("/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
     if (j.ok) { toast("Karya dihapus!"); showPage("works"); }
   });
+});
 }
 
 // ==== SERVICES ====
@@ -317,6 +318,7 @@ function deleteSvc(id) { showConfirm("Yakin ingin menghapus layanan ini?", funct
   fetch("/api/services/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(){
     toast("Layanan dihapus!"); showPage("services");
   });
+  });
 }
 
 // ==== PACKAGES ====
@@ -381,6 +383,7 @@ function savePkg(id) {
 
 function deletePkg(id) { showConfirm("Yakin ingin menghapus paket ini?", function() {
   fetch("/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); showPage("packages"); });
+});
 }
 
 // ==== TESTIMONIALS ====
@@ -444,6 +447,7 @@ function saveTM(id) {
 
 function deleteTM(id) { showConfirm("Yakin ingin menghapus testimoni ini?", function() {
   fetch("/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); showPage("testimonials"); });
+});
 }
 
 // ==== SETTINGS ====
@@ -516,6 +520,7 @@ function addCat() {
 
 function deleteCat(id) { showConfirm("Yakin ingin menghapus kategori ini?", function() {
   fetch("/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); showPage("settings"); });
+});
 }
 
 // ==== INIT ====
@@ -526,6 +531,14 @@ function toggleSidebar() {
 }</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
