@@ -10,4 +10,7 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3001
-CMD ["node", "server.js"]
+COPY seed-docker.js /app/
+RUN echo "node /app/seed-docker.js 2>/dev/null || true && node /app/server.js" > /app/start.sh && chmod +x /app/start.sh
+CMD ["/app/start.sh"]
+
