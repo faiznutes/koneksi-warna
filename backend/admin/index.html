@@ -461,14 +461,18 @@ function loadSettings(main) {
 }
 
 function saveSettings() {
-  var s = JSON.stringify({
+  var data = {
     brand_name: document.getElementById("s-brand").value,
     tagline: document.getElementById("s-tagline").value,
     bio: document.getElementById("s-bio").value,
     wa_number: document.getElementById("s-wa").value,
     instagram: document.getElementById("s-ig").value
-  });
-  fetch("/api/settings/batch", {method:"POST", headers:{"Content-Type":"application/json"}, body:s}).then(function(r){return r.json();}).then(function(){
+  };
+  fetch("/api/settings/batch", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ settings: data })
+  }).then(function(r){return r.json();}).then(function(){
     toast("Pengaturan disimpan!");
   });
 }
@@ -502,6 +506,11 @@ function toggleSidebar() {
 }</script>
 </body>
 </html>
+
+
+
+
+
 
 
 
