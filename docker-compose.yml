@@ -1,14 +1,12 @@
-
 services:
   backend:
-    volumes:
-      - koneksi_db:/app/koneksi.db
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "3002:3001"
     volumes:
+      - koneksi_db:/app/koneksi.db
       - ./backend/uploads:/app/uploads
     environment:
       - PORT=3001
@@ -20,22 +18,14 @@ services:
       retries: 3
 
   frontend:
-    volumes:
-      - koneksi_db:/app/koneksi.db
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "4174:4173"
-    environment:
-      - VITE_API_URL=http://backend:3001
     depends_on:
       - backend
     restart: unless-stopped
-
-
-
-
 
 volumes:
   koneksi_db:
