@@ -203,3 +203,4 @@ app.delete("/api/testimonials/:id", (req, res) => { db.prepare("DELETE FROM test
 app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 app.listen(PORT, () => console.log("Koneksi Warna API on http://localhost:" + PORT));
+
