@@ -22,7 +22,7 @@ db.pragma("foreign_keys = ON");
 db.exec(`
   CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT);
   CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, slug TEXT UNIQUE NOT NULL);
-  CREATE TABLE IF NOT EXISTS works (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT "", category_id INTEGER, image_url TEXT NOT NULL DEFAULT "", featured INTEGER DEFAULT 0, sort_order INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime("now")), FOREIGN KEY (category_id) REFERENCES categories(id));
+  CREATE TABLE IF NOT EXISTS works (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT "", category_id INTEGER, image_url TEXT NOT NULL DEFAULT "", featured INTEGER DEFAULT 0, sort_order INTEGER DEFAULT 0, created_at TEXT DEFAULT (CURRENT_TIMESTAMP), FOREIGN KEY (category_id) REFERENCES categories(id));
   CREATE TABLE IF NOT EXISTS services (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT "", description TEXT DEFAULT "", icon TEXT DEFAULT "Camera", image_url TEXT DEFAULT "", sort_order INTEGER DEFAULT 0);
   CREATE TABLE IF NOT EXISTS packages (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT "", price TEXT DEFAULT "", benefits TEXT DEFAULT "[]", featured INTEGER DEFAULT 0, sort_order INTEGER DEFAULT 0);
   CREATE TABLE IF NOT EXISTS testimonials (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT DEFAULT "", author TEXT DEFAULT "", rating INTEGER DEFAULT 5);
@@ -203,4 +203,5 @@ app.delete("/api/testimonials/:id", (req, res) => { db.prepare("DELETE FROM test
 app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 app.listen(PORT, () => console.log("Koneksi Warna API on http://localhost:" + PORT));
+
 
