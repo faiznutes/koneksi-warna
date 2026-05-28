@@ -1,0 +1,21 @@
+✗ Build failed in 685ms
+error during build:
+Build failed with 1 error:
+
+[MISSING_EXPORT] "Instagram" is not exported by "node_modules/lucide-react/dist/esm/lucide-react.mjs".
+   ╭─[ src/components/Footer.jsx:1:10 ]
+   │
+ 1 │ import { Instagram, MessageCircle } from "lucide-react";
+   │          ────┬────  
+   │              ╰────── Missing export
+───╯
+
+    at aggregateBindingErrorsIntoJsError (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/rolldown/dist/shared/error-B8po7KiL.mjs:48:18)
+    at unwrapBindingResult (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/rolldown/dist/shared/error-B8po7KiL.mjs:18:128)
+    at #build (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/rolldown/dist/shared/rolldown-build-9MccaWPU.mjs:3236:34)
+    at async buildEnvironment (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/vite/dist/node/chunks/node.js:33137:64)
+    at async Object.build (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/vite/dist/node/chunks/node.js:33559:19)
+    at async Object.buildApp (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/vite/dist/node/chunks/node.js:33556:153)
+    at async CAC.<anonymous> (file:///C:/Users/Iz/Documents/POS/frontend/node_modules/vite/dist/node/cli.js:777:3) {
+  errors: [Getter/Setter]
+}

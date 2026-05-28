@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koneksi Warna - Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Inter",sans-serif; background:#1C1816; color:#f0ece8; display:flex; min-height:100vh; }
+.sidebar { width:240px; background:#14110F; padding:24px; border-right:1px solid rgba(255,255,255,.06); flex-shrink:0; }
+.sidebar h1 { font-family:"Playfair Display",serif; font-size:22px; margin-bottom:32px; }
+.sidebar h1 span { color:#D4A029; }
+.sidebar nav { display:flex; flex-direction:column; gap:4px; }
+.sidebar nav a { color:#999; text-decoration:none; padding:10px 14px; border-radius:10px; font-size:14px; transition:.2s; cursor:pointer; }
+.sidebar nav a:hover, .sidebar nav a.active { background:rgba(212,160,41,.15); color:#D4A029; }
+.main { flex:1; padding:32px; overflow-y:auto; max-height:100vh; }
+h2 { font-size:24px; margin-bottom:24px; font-weight:700; }
+.card { background:#2D2824; border-radius:16px; padding:24px; margin-bottom:20px; border:1px solid rgba(255,255,255,.06); }
+.card h3 { font-size:16px; margin-bottom:16px; color:#D4A029; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:13px; color:#999; margin-bottom:6px; }
+.form-group input, .form-group textarea, .form-group select { width:100%; padding:10px 14px; background:#3A3430; border:1px solid rgba(255,255,255,.08); border-radius:10px; color:#f0ece8; font-family:"Inter",sans-serif; font-size:14px; outline:none; }
+.form-group input:focus, .form-group textarea:focus { border-color:#D4A029; }
+.form-group textarea { min-height:80px; resize:vertical; }
+.btn { padding:10px 24px; border-radius:10px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:.2s; }
+.btn-primary { background:#D4A029; color:#1A1512; }
+.btn-primary:hover { background:#c49020; }
+.btn-danger { background:#8B1A1A; color:#fff; }
+.btn-sm { padding:6px 14px; font-size:12px; }
+.btn-outline { background:transparent; border:1px solid rgba(255,255,255,.2); color:#ccc; }
+.btn-outline:hover { border-color:#D4A029; color:#D4A029; }
+.btn-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th, td { padding:10px 12px; text-align:left; border-bottom:1px solid rgba(255,255,255,.06); }
+th { color:#999; font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+td { color:#ddd; }
+td img { width:60px; height:40px; object-fit:cover; border-radius:6px; }
+.badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-gold { background:rgba(212,160,41,.2); color:#D4A029; }
+.actions { display:flex; gap:6px; }
+.toast { position:fixed; bottom:24px; right:24px; background:#3A3430; color:#f0ece8; padding:14px 24px; border-radius:12px; border:1px solid rgba(212,160,41,.3); font-size:14px; z-index:9999; opacity:0; transition:.3s; }
+.toast.show { opacity:1; }
+.upload-area { border:2px dashed rgba(255,255,255,.15); border-radius:12px; padding:32px; text-align:center; cursor:pointer; }
+.upload-area:hover { border-color:#D4A029; background:rgba(212,160,41,.05); }
+.upload-area p { color:#666; font-size:13px; margin-top:8px; }
+.gallery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
+.benefits-list { display:flex; flex-wrap:wrap; gap:6px; }
+.benefits-list span { background:rgba(212,160,41,.12); color:#D4A029; padding:3px 10px; border-radius:6px; font-size:12px; }
+.loading { color:#666; text-align:center; padding:40px; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <h1>Koneksi <span>Warna</span></h1>
+  <nav>
+    <div onclick="showPage('dashboard')" class="active">📊 Dashboard</div>
+    <div onclick="showPage('works')">🖼️ Karya</div>
+    <div onclick="showPage('services')">📋 Layanan</div>
+    <div onclick="showPage('packages')">💰 Paket</div>
+    <div onclick="showPage('testimonials')">⭐ Testimoni</div>
+    <div onclick="showPage('settings')">⚙️ Pengaturan</div>
+  </nav>
+</div>
+<div class="main" id="main"><div class="loading">Memuat...</div></div>
+<div id="toast" class="toast"></div>
+<script>
+const API = "http://localhost:3001";
+
+function $(id) { return document.getElementById(id); }
+function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); }, 3000); }
+
+function navClick(name) { document.querySelectorAll(".sidebar nav div").forEach(function(x){ x.classList.remove("active"); }); document.querySelector(".sidebar nav div[onclick*=\""+name+"\"]").classList.add("active");
+}
+
+function showPage(name) {
+  var main = $("main");
+  main.innerHTML = '<div class="loading">Memuat...</div>';
+  navClick(name);
+  loadPage(name, main);
+}
+
+function errHTML(msg) { return '<div class="card"><p style="color:#e04040;">Error: '+msg+'</p><button class="btn btn-outline btn-sm" onclick="showPage(\''+currentName+'\')">Coba Lagi</button></div>'; }
+var currentName = "";
+
+function loadPage(name, main) {
+  currentName = name;
+  if (name === "dashboard") loadDash(main);
+  else if (name === "works") loadWorks(main);
+  else if (name === "services") loadServices(main);
+  else if (name === "packages") loadPkgs(main);
+  else if (name === "testimonials") loadTMs(main);
+  else if (name === "settings") loadSettings(main);
+}
+
+// ==== DASHBOARD ====
+function loadDash(main) {
+  Promise.all([
+    fetch(API+"/api/works").then(function(r){return r.json();}),
+    fetch(API+"/api/services").then(function(r){return r.json();}),
+    fetch(API+"/api/packages").then(function(r){return r.json();}),
+    fetch(API+"/api/testimonials").then(function(r){return r.json();})
+  ]).then(function(d){
+    var w = d[0].data, s = d[1].data, p = d[2].data, t = d[3].data;
+    main.innerHTML =
+      '<h2>Dashboard</h2>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;">' +
+        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+w.length+'</div><div style="color:#999;font-size:14px;">Karya</div></div>' +
+        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+s.length+'</div><div style="color:#999;font-size:14px;">Layanan</div></div>' +
+        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+p.length+'</div><div style="color:#999;font-size:14px;">Paket</div></div>' +
+        '<div class="card" style="text-align:center;"><div style="font-size:36px;font-weight:700;color:#D4A029;">'+t.length+'</div><div style="color:#999;font-size:14px;">Testimoni</div></div>' +
+      '</div>' +
+      '<div class="card"><h3>Akses Cepat</h3><div style="display:flex;flex-wrap:wrap;gap:12px;">' +
+        '<button class="btn btn-primary" onclick="showPage(\'works\')">🖼️ Kelola Karya</button>' +
+        '<button class="btn btn-primary" onclick="showPage(\'services\')">📋 Kelola Layanan</button>' +
+        '<button class="btn btn-primary" onclick="showPage(\'packages\')">💰 Kelola Paket</button>' +
+        '<button class="btn btn-primary" onclick="showPage(\'settings\')">⚙️ Pengaturan</button>' +
+      '</div></div>';
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+// ==== WORKS ====
+function loadWorks(main) {
+  Promise.all([
+    fetch(API+"/api/works").then(function(r){return r.json();}),
+    fetch(API+"/api/categories").then(function(r){return r.json();})
+  ]).then(function(d){
+    var works = d[0].data, cats = d[1].data;
+    var html = '<div class="btn-bar"><h2 style="margin:0;">Karya</h2><button class="btn btn-primary" onclick="showWorkForm()">+ Tambah Karya</button></div>';
+    if (works.length === 0) {
+      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada karya. Klik Tambah Karya untuk mulai.</p></div>';
+    } else {
+      html += '<table><thead><tr><th>Foto</th><th>Judul</th><th>Kategori</th><th>Featured</th><th>Aksi</th></tr></thead><tbody>';
+      for (var i=0; i<works.length; i++) {
+        var w = works[i];
+        var img = w.image_url || "";
+        if (img && img.startsWith("/")) img = "http://localhost:3001" + img;
+        html += '<tr>' +
+          '<td><img src="'+img+'" onerror="this.style.display=\'none\'"></td>' +
+          '<td>'+(w.title||"-")+'</td>' +
+          '<td><span class="badge badge-gold">'+(w.category_name||"Tanpa")+'</span></td>' +
+          '<td>'+(w.featured?'<span class="badge badge-gold">&#9733; Featured</span>':'')+'</td>' +
+          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showWorkForm('+w.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteWork('+w.id+')">Hapus</button></td>' +
+          '</tr>';
+      }
+      html += '</tbody></table>';
+    }
+    main.innerHTML = html;
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+function showWorkForm(id) {
+  var main = $("main");
+  if (!id) {
+    id = 0;
+  }
+  if (id) {
+    fetch(API+"/api/works/"+id).then(function(r){return r.json();}).then(function(d){
+      renderWorkForm(main, d.data, id);
+    }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+  } else {
+    renderWorkForm(main, {title:"",category_id:"",image_url:"",featured:0,sort_order:0}, 0);
+  }
+}
+
+function renderWorkForm(main, work, id) {
+  fetch(API+"/api/categories").then(function(r){return r.json();}).then(function(d){
+    var cats = d.data;
+    var catOpts = '<option value="">Pilih kategori</option>';
+    for (var i=0; i<cats.length; i++) {
+      catOpts += '<option value="'+cats[i].id+'"'+(work.category_id==cats[i].id?' selected':'')+'>'+cats[i].name+'</option>';
+    }
+    main.innerHTML =
+      '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Karya</h2><button class="btn btn-outline" onclick="showPage(\'works\')">&larr; Kembali</button></div>' +
+      '<div class="card"><div class="form-grid">' +
+        '<div class="form-group"><label>Judul</label><input id="wf-title" value="'+(work.title||"")+'"></div>' +
+        '<div class="form-group"><label>Kategori</label><select id="wf-cat">'+catOpts+'</select></div>' +
+        '<div class="form-group"><label>URL Gambar</label><input id="wf-url" value="'+(work.image_url||"")+'" placeholder="https://...jpg"></div>' +
+        '<div class="form-group"><label>Featured</label><div><label style="color:#ccc;display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="checkbox" id="wf-feat"'+(work.featured?' checked':'')+'> Jadikan unggulan</label></div></div>' +
+      '</div>' +
+      '<div class="upload-area" onclick="document.getElementById(\'wf-file\').click()"><p style="font-size:28px;margin:0;">&#128247;</p><p>Klik untuk upload foto</p><input type="file" id="wf-file" accept="image/*" style="display:none"></div>' +
+      '<div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveWork('+id+')">&#128190; Simpan</button></div></div>';
+  });
+}
+
+function saveWork(id) {
+  var fd = new FormData();
+  fd.append("title", document.getElementById("wf-title").value);
+  fd.append("category_id", document.getElementById("wf-cat").value || "");
+  fd.append("featured", document.getElementById("wf-feat").checked ? "1" : "0");
+  var file = document.getElementById("wf-file");
+  if (file.files[0]) fd.append("image", file.files[0]);
+  else fd.append("image_url", document.getElementById("wf-url").value);
+  var url = API+"/api/works"+(id?"/"+id:"");
+  var method = id ? "PUT" : "POST";
+  fetch(url, { method: method, body: fd }).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast(id?"Karya diperbarui!":"Karya ditambahkan!"); showPage("works"); }
+    else toast("Error: "+j.error);
+  }).catch(function(e){ toast("Error: "+e.message); });
+}
+
+function deleteWork(id) {
+  if (!confirm("Hapus karya ini?")) return;
+  fetch(API+"/api/works/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast("Karya dihapus!"); showPage("works"); }
+  });
+}
+
+// ==== SERVICES ====
+function loadServices(main) {
+  fetch(API+"/api/services").then(function(r){return r.json();}).then(function(d){
+    var svcs = d.data;
+    var html = '<div class="btn-bar"><h2 style="margin:0;">Layanan</h2><button class="btn btn-primary" onclick="showSvcForm()">+ Tambah Layanan</button></div>';
+    if (svcs.length === 0) {
+      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada layanan.</p></div>';
+    } else {
+      html += '<div class="gallery-grid">';
+      for (var i=0; i<svcs.length; i++) {
+        var s = svcs[i];
+        var img = s.image_url || "";
+        if (img && img.startsWith("/")) img = "http://localhost:3001" + img;
+        html += '<div class="card" style="padding:16px;"><div style="aspect-ratio:16/9;border-radius:8px;overflow:hidden;margin-bottom:12px;background:#3A3430;">' +
+          '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=display:flex;align-items:center;justify-content:center;height:100%;color:#555;font-size:32px;>&#128247;</div>\'">' +
+          '</div><div style="font-size:14px;font-weight:600;margin-bottom:4px;">'+s.title+'</div>' +
+          '<div style="font-size:12px;color:#999;margin-bottom:8px;">'+(s.description?s.description.substring(0,60):"")+'</div>' +
+          '<div class="actions"><button class="btn btn-sm btn-outline" onclick="showSvcForm('+s.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteSvc('+s.id+')">Hapus</button></div></div>';
+      }
+      html += '</div>';
+    }
+    main.innerHTML = html;
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+function showSvcForm(id) {
+  var main = $("main");
+  if (id) {
+    fetch(API+"/api/services/"+id).then(function(r){return r.json();}).then(function(d){
+      renderSvcForm(main, d.data, id);
+    });
+  } else {
+    renderSvcForm(main, {title:"",description:"",icon:"Camera",image_url:""}, 0);
+  }
+}
+
+function renderSvcForm(main, s, id) {
+  var icons = ["Camera","Heart","Star","Users"];
+  var iconOpts = "";
+  for (var i=0; i<icons.length; i++) {
+    iconOpts += '<option value="'+icons[i]+'"'+(s.icon==icons[i]?' selected':'')+'>'+icons[i]+'</option>';
+  }
+  main.innerHTML =
+    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Layanan</h2><button class="btn btn-outline" onclick="showPage(\'services\')">&larr; Kembali</button></div>' +
+    '<div class="card"><div class="form-grid">' +
+      '<div class="form-group"><label>Nama Layanan</label><input id="sf-title" value="'+(s.title||"")+'"></div>' +
+      '<div class="form-group"><label>Ikon</label><select id="sf-icon">'+iconOpts+'</select></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Deskripsi</label><textarea id="sf-desc" rows="3">'+(s.description||"")+'</textarea></div>' +
+      '<div class="form-group"><label>URL Gambar</label><input id="sf-url" value="'+(s.image_url||"")+'"></div>' +
+      '<div class="form-group"><label>Atau upload</label><input type="file" id="sf-file" accept="image/*"></div>' +
+    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveSvc('+(id||"")+')">&#128190; Simpan</button></div></div>';
+}
+
+function saveSvc(id) {
+  var fd = new FormData();
+  fd.append("title", document.getElementById("sf-title").value);
+  fd.append("description", document.getElementById("sf-desc").value);
+  fd.append("icon", document.getElementById("sf-icon").value);
+  var file = document.getElementById("sf-file");
+  if (file.files[0]) fd.append("image", file.files[0]);
+  else fd.append("image_url", document.getElementById("sf-url").value);
+  var method = id ? "PUT" : "POST";
+  fetch(API+"/api/services/"+(id||""), {method:method, body:fd}).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast(id?"Layanan diperbarui!":"Layanan ditambahkan!"); showPage("services"); }
+  });
+}
+
+function deleteSvc(id) {
+  if (!confirm("Hapus layanan?")) return;
+  fetch(API+"/api/services/"+id, {method:"DELETE"}).then(function(r){return r.json();}).then(function(){
+    toast("Layanan dihapus!"); showPage("services");
+  });
+}
+
+// ==== PACKAGES ====
+function loadPkgs(main) {
+  fetch(API+"/api/packages").then(function(r){return r.json();}).then(function(d){
+    var pks = d.data;
+    var html = '<div class="btn-bar"><h2 style="margin:0;">Paket</h2><button class="btn btn-primary" onclick="showPkgForm()">+ Tambah Paket</button></div>';
+    if (pks.length === 0) {
+      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada paket.</p></div>';
+    } else {
+      html += '<table><thead><tr><th>Paket</th><th>Harga</th><th>Benefit</th><th>Populer</th><th>Aksi</th></tr></thead><tbody>';
+      for (var i=0; i<pks.length; i++) {
+        var p = pks[i];
+        var bens = "";
+        if (p.benefits) { for (var j=0; j<p.benefits.length; j++) { bens += '<span>'+p.benefits[j]+'</span> '; } }
+        html += '<tr><td><strong>'+p.title+'</strong></td><td style="color:#D4A029;">'+(p.price||"-")+'</td>' +
+          '<td><div class="benefits-list">'+bens+'</div></td><td>'+(p.featured?'<span class="badge badge-gold">&#9733; Populer</span>':'')+'</td>' +
+          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showPkgForm('+p.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deletePkg('+p.id+')">Hapus</button></td></tr>';
+      }
+      html += '</tbody></table>';
+    }
+    main.innerHTML = html;
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+function showPkgForm(id) {
+  var main = $("main");
+  if (id) {
+    fetch(API+"/api/packages/"+id).then(function(r){return r.json();}).then(function(d){
+      renderPkgForm(main, d.data, id);
+    });
+  } else {
+    renderPkgForm(main, {title:"",price:"",benefits:[],featured:0}, 0);
+  }
+}
+
+function renderPkgForm(main, p, id) {
+  var bens = (p.benefits||[]).join("\n");
+  main.innerHTML =
+    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Paket</h2><button class="btn btn-outline" onclick="showPage(\'packages\')">&larr; Kembali</button></div>' +
+    '<div class="card"><div class="form-grid">' +
+      '<div class="form-group"><label>Nama Paket</label><input id="pf-title" value="'+(p.title||"")+'"></div>' +
+      '<div class="form-group"><label>Harga</label><input id="pf-price" value="'+(p.price||"")+'" placeholder="Mulai Rp ..."></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Benefit (satu baris per item)</label><textarea id="pf-benefits" rows="5">'+bens+'</textarea></div>' +
+      '<div class="form-group"><label style="color:#ccc;display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pf-feat"'+(p.featured?' checked':'')+'> Paket populer</label></div>' +
+    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="savePkg('+(id||"")+')">&#128190; Simpan</button></div></div>';
+}
+
+function savePkg(id) {
+  var bens = document.getElementById("pf-benefits").value.split("\n").filter(function(x){return x;});
+  var body = JSON.stringify({
+    title: document.getElementById("pf-title").value,
+    price: document.getElementById("pf-price").value,
+    benefits: bens,
+    featured: document.getElementById("pf-feat").checked
+  });
+  var method = id ? "PUT" : "POST";
+  fetch(API+"/api/packages/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast(id?"Paket diperbarui!":"Paket ditambahkan!"); showPage("packages"); }
+  });
+}
+
+function deletePkg(id) {
+  if (!confirm("Hapus paket?")) return;
+  fetch(API+"/api/packages/"+id, {method:"DELETE"}).then(function(){ toast("Paket dihapus!"); showPage("packages"); });
+}
+
+// ==== TESTIMONIALS ====
+function loadTMs(main) {
+  fetch(API+"/api/testimonials").then(function(r){return r.json();}).then(function(d){
+    var tms = d.data;
+    var html = '<div class="btn-bar"><h2 style="margin:0;">Testimoni</h2><button class="btn btn-primary" onclick="showTMForm()">+ Tambah Testimoni</button></div>';
+    if (tms.length === 0) {
+      html += '<div class="card"><p style="color:#666;text-align:center;">Belum ada testimoni.</p></div>';
+    } else {
+      html += '<table><thead><tr><th>Nama</th><th>Testimoni</th><th>Rating</th><th>Aksi</th></tr></thead><tbody>';
+      for (var i=0; i<tms.length; i++) {
+        var t = tms[i];
+        var stars = "";
+        for (var s=0; s<t.rating; s++) stars += "\u2605";
+        for (var s=t.rating; s<5; s++) stars += "\u2606";
+        html += '<tr><td><strong>'+(t.author||"")+'</strong></td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"'+t.text+'"</td>' +
+          '<td>'+stars+'</td>' +
+          '<td class="actions"><button class="btn btn-sm btn-outline" onclick="showTMForm('+t.id+')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteTM('+t.id+')">Hapus</button></td></tr>';
+      }
+      html += '</tbody></table>';
+    }
+    main.innerHTML = html;
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+function showTMForm(id) {
+  var main = $("main");
+  if (id) {
+    fetch(API+"/api/testimonials/"+id).then(function(r){return r.json();}).then(function(d){
+      renderTMForm(main, d.data, id);
+    });
+  } else {
+    renderTMForm(main, {text:"",author:"",rating:5}, 0);
+  }
+}
+
+function renderTMForm(main, t, id) {
+  var ratingOpts = "";
+  for (var i=5; i>=1; i--) { ratingOpts += '<option value="'+i+'"'+(t.rating==i?' selected':'')+'>'+i+' Bintang</option>'; }
+  main.innerHTML =
+    '<div class="btn-bar"><h2 style="margin:0;">'+(id?"Edit":"Tambah")+' Testimoni</h2><button class="btn btn-outline" onclick="showPage(\'testimonials\')">&larr; Kembali</button></div>' +
+    '<div class="card"><div class="form-grid">' +
+      '<div class="form-group"><label>Nama Klien</label><input id="tf-author" value="'+(t.author||"")+'"></div>' +
+      '<div class="form-group"><label>Rating</label><select id="tf-rating">'+ratingOpts+'</select></div>' +
+      '<div class="form-group" style="grid-column:1/-1;"><label>Testimoni</label><textarea id="tf-text" rows="4">'+(t.text||"")+'</textarea></div>' +
+    '</div><div style="margin-top:20px;"><button class="btn btn-primary" onclick="saveTM('+(id||"")+')">&#128190; Simpan</button></div></div>';
+}
+
+function saveTM(id) {
+  var body = JSON.stringify({
+    author: document.getElementById("tf-author").value,
+    text: document.getElementById("tf-text").value,
+    rating: parseInt(document.getElementById("tf-rating").value)
+  });
+  var method = id ? "PUT" : "POST";
+  fetch(API+"/api/testimonials/"+(id||""), {method:method, headers:{"Content-Type":"application/json"}, body:body}).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast(id?"Testimoni diperbarui!":"Testimoni ditambahkan!"); showPage("testimonials"); }
+  });
+}
+
+function deleteTM(id) {
+  if (!confirm("Hapus testimoni?")) return;
+  fetch(API+"/api/testimonials/"+id, {method:"DELETE"}).then(function(){ toast("Testimoni dihapus!"); showPage("testimonials"); });
+}
+
+// ==== SETTINGS ====
+function loadSettings(main) {
+  fetch(API+"/api/settings").then(function(r){return r.json();}).then(function(d){
+    var s = d.data || {};
+    var cats = s.categories || [];
+    var brand = s.brand_name || "Koneksi Warna";
+    var tagline = s.tagline || "Fotografer Surabaya";
+    var bio = s.bio || "";
+    var wa = s.wa_number || "6285155043133";
+    var ig = s.instagram || "koneksi.warna";
+    var hero = s.hero_bg || "";
+    var catRows = "";
+    for (var i=0; i<cats.length; i++) {
+      catRows += '<tr><td>'+cats[i].name+'</td><td><code>'+cats[i].slug+'</code></td><td class="actions"><button class="btn btn-sm btn-danger" onclick="deleteCat('+cats[i].id+')">Hapus</button></td></tr>';
+    }
+    main.innerHTML =
+      '<h2>Pengaturan</h2>' +
+      '<div class="card"><h3>Informasi Profil</h3><div class="form-grid">' +
+        '<div class="form-group"><label>Nama Brand</label><input id="s-brand" value="'+brand+'"></div>' +
+        '<div class="form-group"><label>Tagline</label><input id="s-tagline" value="'+tagline+'"></div>' +
+        '<div class="form-group" style="grid-column:1/-1;"><label>Bio / Tentang</label><textarea id="s-bio" rows="4">'+bio+'</textarea></div>' +
+        '<div class="form-group"><label>Nomor WhatsApp</label><input id="s-wa" value="'+wa+'"></div>' +
+        '<div class="form-group"><label>Instagram</label><input id="s-ig" value="'+ig+'"></div>' +
+      '</div><div style="margin-top:16px;"><button class="btn btn-primary" onclick="saveSettings()">&#128190; Simpan Pengaturan</button></div></div>' +
+      '<div class="card"><h3>Kategori</h3><div style="display:flex;gap:8px;margin-bottom:16px;">' +
+        '<input id="new-cat-name" placeholder="Nama" style="flex:1;padding:10px;background:#3A3430;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0ece8;">' +
+        '<input id="new-cat-slug" placeholder="slug" style="flex:1;padding:10px;background:#3A3430;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f0ece8;">' +
+        '<button class="btn btn-primary" onclick="addCat()">Tambah</button></div>' +
+        '<table><thead><tr><th>Nama</th><th>Slug</th><th>Aksi</th></tr></thead><tbody>'+catRows+'</tbody></table></div>' +
+      '<div class="card"><h3>Hero Background</h3><p style="color:#666;font-size:13px;margin-bottom:12px;">URL gambar background hero.</p>' +
+        '<div class="form-group"><input id="s-hero" value="'+hero+'" style="width:100%;"></div>' +
+        '<div style="margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="saveSetting(\'hero_bg\',document.getElementById(\'s-hero\').value)">Simpan Background</button></div></div>';
+  }).catch(function(e){ main.innerHTML = errHTML(e.message); });
+}
+
+function saveSettings() {
+  var s = JSON.stringify({
+    brand_name: document.getElementById("s-brand").value,
+    tagline: document.getElementById("s-tagline").value,
+    bio: document.getElementById("s-bio").value,
+    wa_number: document.getElementById("s-wa").value,
+    instagram: document.getElementById("s-ig").value
+  });
+  fetch(API+"/api/settings/batch", {method:"POST", headers:{"Content-Type":"application/json"}, body:s}).then(function(r){return r.json();}).then(function(){
+    toast("Pengaturan disimpan!");
+  });
+}
+
+function saveSetting(key, value) {
+  fetch(API+"/api/settings", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key:key, value:value})}).then(function(){
+    toast(key+" disimpan!");
+  });
+}
+
+function addCat() {
+  var name = document.getElementById("new-cat-name").value;
+  var slug = document.getElementById("new-cat-slug").value;
+  if (!name || !slug) return toast("Isi nama dan slug");
+  fetch(API+"/api/categories", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:name, slug:slug})}).then(function(r){return r.json();}).then(function(j){
+    if (j.ok) { toast("Kategori ditambahkan!"); showPage("settings"); }
+    else toast("Error: "+j.error);
+  });
+}
+
+function deleteCat(id) {
+  if (!confirm("Hapus kategori?")) return;
+  fetch(API+"/api/categories/"+id, {method:"DELETE"}).then(function(){ toast("Kategori dihapus!"); showPage("settings"); });
+}
+
+// ==== INIT ====
+showPage("dashboard");
+</script>
+</body>
+</html>
+
